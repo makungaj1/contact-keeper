@@ -24,9 +24,9 @@ const userSchema = new mongoose.Schema({
 		default: Date.now
 	}
 });
-
+const paylod = { _id: this._id };
 userSchema.methods.generateAuthToken = function() {
-	const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey'));
+	const token = jwt.sign(paylod, config.get('jwtPrivateKey'));
 	return token;
 };
 

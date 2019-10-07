@@ -4,6 +4,8 @@ const router = express.Router();
 const _ = require('lodash');
 const { User, validate } = require('../models/user');
 
+// @Register a user
+
 router.post('/', async (req, res) => {
 	// Check for error
 	const { error } = validate(req.body);
