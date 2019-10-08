@@ -24,8 +24,10 @@ const userSchema = new mongoose.Schema({
 		default: Date.now
 	}
 });
-const paylod = { _id: this._id };
+
 userSchema.methods.generateAuthToken = function() {
+	// const paylod = { id: this._id, name: this.name }; the token will have id and name
+	const paylod = { id: this._id };
 	const token = jwt.sign(paylod, config.get('jwtPrivateKey'));
 	return token;
 };
@@ -42,5 +44,15 @@ function validateUser(user) {
 	return Joi.validate(user, schema);
 }
 
+function validateAuth(user) {
+	const schema = {
+		email: Joi.string().min(5).max(255).required().email(),
+		password: Joi.string().min(5).max(255).required()
+	};
+
+	return Joi.validate(user, schema);
+}
+
 exports.User = User;
 exports.validate = validateUser;
+exports.validateAuth = validateAuth;

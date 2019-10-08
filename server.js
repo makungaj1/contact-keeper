@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const auth = require('./routes/auth');
 const app = express();
 
 mongoose
@@ -21,5 +22,5 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 app.get('/', (req, res) => res.send('Hello world'));
 
 app.use('/api/users', require('./routes/users'));
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/contacts', require('./routes/contacts'));
