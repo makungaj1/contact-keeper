@@ -1,0 +1,4 @@
+{
+	"mongoURI": "mongodb+srv://makungaj1:jona2019M#@contactkeeper-typvb.mongodb.net/test?retryWrites=true&w=majority",
+	"jwtPrivateKey": "12345"
+}
