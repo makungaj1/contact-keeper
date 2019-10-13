@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import uuid from 'uuid';
+import axios from 'axios';
 import ContactContext from './contactContext';
 import ContactReducer from './contactReducer';
 import {
@@ -9,67 +9,58 @@ import {
 	CLEAR_CURRENT,
 	UPDATE_CONTACT,
 	FILTER_CONTACTS,
-	CLEAR_FILTER
+	CLEAR_FILTER,
+	CONTACT_ERROR,
+	GET_CONTACT,
+	CLEAR_CONTACT
 } from '../types';
 
 const ContactSate = (props) => {
 	const initialState = {
-		contacts: [
-			{
-				type: 'professional',
-				id: '5d9bced76f5cdf330416efe6',
-				name: 'Michee Boele',
-				email: 'mboele@gmail.com',
-				phone: '444-444-4444',
-				user: '5d9bb482928fd820fcacffa6',
-				date: '2019-10-07T23:48:39.479Z',
-				__v: 0
-			},
-			{
-				type: 'personal',
-				id: '5d9bce687f9f091a5847de1a',
-				name: 'Jonathan Makunga',
-				email: 'jmakunga@gmail.com',
-				phone: '444-444-4444',
-				user: '5d9bb482928fd820fcacffa6',
-				date: '2019-10-07T23:46:48.774Z',
-				__v: 0
-			},
-			{
-				type: 'personal',
-				id: '5d9bce217f9f091a5847de19',
-				name: 'Ted Johnson',
-				email: 'ted@gmail.com',
-				phone: '444-444-4444',
-				user: '5d9bb482928fd820fcacffa6',
-				date: '2019-10-07T23:45:37.353Z',
-				__v: 0
-			},
-			{
-				type: 'personal',
-				id: '5d9bcd797f9f091a5847de18',
-				name: 'Sara Smith',
-				email: 'ssmith@gmail.com',
-				phone: '444-444-4444',
-				user: '5d9bb482928fd820fcacffa6',
-				date: '2019-10-07T23:42:49.242Z',
-				__v: 0
-			}
-		],
+		contacts: null,
 		current: null,
-		filtered: null
+		filtered: null,
+		error: null
 	};
 
 	const [ state, dispatch ] = useReducer(ContactReducer, initialState);
+	// GET CONTACT
+	const getContacts = async (t) => {
+		try {
+			const res = await axios.get('/api/contacts');
+			dispatch({ type: GET_CONTACT, payload: res.data });
+		} catch (err) {
+			dispatch({ type: CONTACT_ERROR, payload: err.response.msg });
+		}
+	};
 
 	// ADD CONTACT
-	const addContact = (contact) => {
-		contact.id = uuid.v4();
-		dispatch({ type: ADD_CONTACT, payload: contact });
+	const addContact = async (contact) => {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		};
+		try {
+			const res = await axios.post('/api/contacts', contact, config);
+			dispatch({ type: ADD_CONTACT, payload: res.data });
+		} catch (err) {
+			dispatch({ type: CONTACT_ERROR, payload: err.response.msg });
+		}
 	};
 	// DELETE CONTACT
-	const deleteContact = (id) => {
-		dispatch({ type: DELETE_CONTACT, payload: id });
+	const deleteContact = async (_id) => {
+		try {
+			axios.delete(`/api/contacts/${_id}`);
+			dispatch({ type: DELETE_CONTACT, payload: _id });
+		} catch (err) {
+			dispatch({ type: CONTACT_ERROR, payload: err.response.msg });
+		}
+	};
+
+	// CLEAR CONTACTS
+	const clearContacts = () => {
+		dispatch({ type: CLEAR_CONTACT });
 	};
 
 	//SET CURRENT CONTACT
@@ -83,8 +74,18 @@ const ContactSate = (props) => {
 	};
 
 	// UPDATE CONTACT
-	const updateContact = (contact) => {
-		dispatch({ type: UPDATE_CONTACT, payload: contact });
+	const updateContact = async (contact) => {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		};
+		try {
+			const res = await axios.put(`/api/contacts/${contact._id}`, contact, config);
+			dispatch({ type: UPDATE_CONTACT, payload: res.data });
+		} catch (err) {
+			dispatch({ type: CONTACT_ERROR, payload: err.response.msg });
+		}
 	};
 
 	// FILTER CONTACT
@@ -110,7 +111,10 @@ const ContactSate = (props) => {
 				updateContact,
 				filteredContacts,
 				clearFilter,
-				filtered: state.filtered
+				filtered: state.filtered,
+				error: state.error,
+				getContacts,
+				clearContacts
 			}}
 		>
 			{props.children}

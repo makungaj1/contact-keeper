@@ -9,11 +9,11 @@ const { User, validate } = require('../models/user');
 router.post('/', async (req, res) => {
 	// Check for error
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return res.status(400).json({ msg: error.details[0].message });
 
 	// Check if user already exist
 	let user = await User.findOne({ email: req.body.email });
-	if (user) return res.status(400).send('User already registered.');
+	if (user) return res.status(400).json({ msg: 'User already exists.' });
 
 	user = new User(_.pick(req.body, [ 'name', 'email', 'password' ]));
 
@@ -24,7 +24,8 @@ router.post('/', async (req, res) => {
 	await user.save();
 
 	const token = user.generateAuthToken();
-	res.header('x-auth-token', token).send(_.pick(user, [ '_id', 'name', 'email' ]));
+	res.header('x-auth-token', token).json({ token });
+	// res.json({ token });
 });
 
 module.exports = router;

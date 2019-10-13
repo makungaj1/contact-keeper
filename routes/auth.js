@@ -16,7 +16,7 @@ router.get('/', auth, async (req, res) => {
 		res.json(user);
 	} catch (ex) {
 		console.error(ex.message);
-		res.status(500).send('Server Error');
+		res.status(500).json({ msg: 'Server Error' });
 	}
 });
 
@@ -27,23 +27,24 @@ router.get('/', auth, async (req, res) => {
 router.post('/', async (req, res) => {
 	// Check for error
 	const { error } = validateAuth(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return res.status(400).json({ msg: error.details[0].message });
 
 	const { email, password } = _.pick(req.body, [ 'email', 'password' ]);
 
 	try {
 		// find user by email
-		let user = await User.findOne({ email: email });
+		let user = await User.findOne({ email });
 		if (!user) return res.status(400).json({ msg: 'Invalid Credential' });
 
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) return res.status(400).json({ msg: 'Invalid Credential' });
 
 		const token = user.generateAuthToken();
-		res.header('x-auth-token', token).send({ msg: 'Logged in' });
+		res.header('x-auth-token', token).json({ token });
+		// res.json({ token });
 	} catch (ex) {
 		console.error(ex.message);
-		res.status(500).send('Server Error');
+		res.status(500).json({ msg: 'Server Error' });
 	}
 });
 
