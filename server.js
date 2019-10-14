@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const connectDB = require('./config/db');
 require('./models/production/prod')(app);
-// import path from 'path';
+import path from 'path';
 
 // Connect Database
 connectDB();
